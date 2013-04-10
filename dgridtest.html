@@ -12,12 +12,7 @@
 <body>
 
 <script>
-    var num=1;
-</script>
-
-<script>
-    num++;
-    alert("num is " + num);
+    var store=null;
 </script>
 
 
@@ -27,9 +22,6 @@
                 "dgrid/Keyboard", "dgrid/OnDemandGrid", "dojo/domReady!"],
             function(declare, Memory, Observable, Grid, Selection, Keyboard, OnDemandGrid) {
 
-
-
-
                 var employees=[
                     {first: "Bela", last: "Ban", age: 48},
                     {first: "Michelle", last: "Ban", age: 12},
@@ -38,7 +30,7 @@
                     {first: "Marco", last: "Furini", age: 48}
                 ]
 
-                var store=new Memory({data:employees, idProperty: "first"});
+                store=new Memory({data:employees, idProperty: "first"});
                 store=new Observable(store);
 
                 var grid = new OnDemandGrid({
