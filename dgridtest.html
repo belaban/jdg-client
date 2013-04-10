@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <title>JDG client</title>
-    <!-- this configuration assumes that the dgrid package is located
+    <!-- this cofiguration assumes that the dgrid package is located
          on the filesystem as a sibling to the dojo package -->
     <script src="../dojo/dojo.js"
             data-dojo-config="async: true"></script>
@@ -22,42 +22,36 @@
                 "dgrid/Keyboard", "dgrid/OnDemandGrid", "dojo/domReady!"],
             function(declare, Memory, Observable, Grid, Selection, Keyboard, OnDemandGrid) {
 
-                var employees=[
-                    {first: "Bela", last: "Ban", age: 48},
-                    {first: "Michelle", last: "Ban", age: 12},
-                    {first: "Nicole", last: "Ban", age: 9},
-                    {first: "Jeannette", last: "Ban", age: 45},
-                    {first: "Marco", last: "Furini", age: 48}
+                var cache=[
+                    {key: "Bela",      value: "Ban"},
+                    {key: "Michelle",  value: "Ban"},
+                    {key: "Nicole",    value: "Ban"},
+                    {key: "Jeannette", value: "Ban"},
+                    {key: "Marco",     value: "Furini"}
                 ]
 
-                store=new Memory({data:employees, idProperty: "first"});
+                store=new Memory({data:cache, idProperty: "key"});
                 store=new Observable(store);
 
-                var grid = new OnDemandGrid({
-                                                store: store,
+                var grid = new OnDemandGrid({store: store,
                                                 columns: {
-                                                    first: "First Name",
-                                                    last: "Last Name",
-                                                    age: "Age"
+                                                    key: "Key",
+                                                    value: "Value"
                                                 },
                                                 selectionMode: "single"
                                             }, "grid");
 
                 grid.on("dgrid-select", function(event) {
-                    console.log("selected: " + event.type);
-
-                    var first=event.rows[0].data.first;
-                    var lastname=event.rows[0].data.last;
-
-                    var key=document.getElementById('key').value=first;
-                    var value=document.getElementById('value').value=lastname;
+                    var key=event.rows[0].data.key;
+                    var value=event.rows[0].data.value;
+                    document.getElementById('key').value=key;
+                    document.getElementById('value').value=value;
                 });
 
                 grid.on(".dgrid-row:click", function(event){
                     var row = grid.row(event);
-                    console.log("Row clicked:", row.id);
-                    var el=document.getElementById("details");
-                    el.innerHTML="row: " + row.id + ", " + row.data.first;
+                    document.getElementById('key').value=row.data.key;
+                    document.getElementById('value').value=row.data.value;
                 });
             });
 
@@ -67,10 +61,14 @@
         var value=document.getElementById(valname).value;
         console.log("key=" + key + ", value=" + value);
 
-        store.add({first: key, last: value, age: 66});
-        var bela=store.get("Bela");
-        bela.age=30;
-        store.put(bela);
+        var element=store.get(key);
+        if(element == null) {
+            store.add({key: key, value: value}, {overwrite: true});
+        }
+        else {
+            element.value=value;
+            store.put(element);
+        }
     }
 </script>
 
