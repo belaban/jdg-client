@@ -33,13 +33,14 @@
                 store=new Memory({data:cache, idProperty: "key"});
                 store=new Observable(store);
 
-                var grid = new OnDemandGrid({store: store,
-                                                columns: {
-                                                    key: "Key",
-                                                    value: "Value"
-                                                },
-                                                selectionMode: "single"
-                                            }, "grid");
+                var grid = new (declare([OnDemandGrid, Selection]))(
+                        {store: store,
+                            columns: {
+                                key: "Key",
+                                value: "Value"
+                            },
+                            selectionMode: "single"
+                        }, "grid");
 
                 grid.on("dgrid-select", function(event) {
                     var key=event.rows[0].data.key;
@@ -70,20 +71,30 @@
             store.put(element);
         }
     }
+
+    /** Removes the highlighted element from the grid (no-op if nothing is highlighted) */
+    function removeData() {
+        var key=document.getElementById('key');
+        if(key != null && key.value != null) {
+            store.remove(key.value);
+        }
+    }
 </script>
 
 
 
 <div id="grid"></div>
-<div id="details">hello</div>
-<div id="message">message here...</div>
 <p/>
 <form id="add" onsubmit="display('key', 'value'); return false;" action="javascript:void(0);">
     <label for='key'>Key: </label>
     <input id='key' name="Key" autofocus/>
     <label for='value'>Value:</label>
     <input id='value' name="Value"/>
-    <input type='submit' name="submit" value="Submit"/>
+    <input type='submit' name="add" value="Put"/>
+    <button id="mybutton" type="button" onclick="removeData()">Remove</button>
 </form>
+
+
+
 </body>
 </html>
