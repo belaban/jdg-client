@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Tutorial: Hello Dojo from Bela!</title>
+</head>
+<body class="yui3-skin-sam">
+<h1 id="greeting">Hello from Bela</h1>
+
+<p id="myp">DATE: </p>
+
+<script>
+    var pic1="../belanew.gif";
+    var pic2="../small.png";
+</script>
+
+<img src="../belanew.gif" id="belaspic"
+        onmouseover=changePicture(pic2)
+        onmouseout=changePicture(pic1) />
+
+<script src="http://yui.yahooapis.com/3.9.0/build/yui/yui-min.js"></script>
+
+<!-- load Dojo -->
+<script src="./dojo/dojo.js"
+        data-dojo-config="async: true"></script>
+
+
+<button type="button"
+        onclick="addButton('bla')">
+clickme
+</button>
+
+<script>
+
+    // Require the module we just created
+    /*require(["demo/myModule"], function(arg){
+        // Use our module to change the text in the greeting
+        arg.setText("greeting", "Hello Dojo!");
+
+        // After a few seconds, restore the text to its original state
+        setTimeout(function(){
+            arg.restoreText("greeting");
+        }, 3000);
+    });*/
+
+
+    require(["dojo/request"], function(request){
+        request("helloworld.txt").then(
+                function(text){
+                    document.getElementById("myp").innerHTML=text;
+                },
+                function(error){
+                    alert("An error occurred: " + error);
+                }
+        );
+    });
+
+
+
+
+</script>
+
+
+
+<script>
+
+
+
+    function add(name) {
+        document.getElementById('belaspic').src="../small.png"
+    }
+
+    function changePicture(filename) {
+        document.getElementById('belaspic').src=filename;
+    }
+
+    function addButton(name) {
+        var p=document.createElement("p");
+        var text=document.createTextNode(name);
+        document.appendChild(p).appendChild(text);
+    }
+
+
+
+</script>
+
+<script>
+
+    // require("YUI");
+
+    // Create a new YUI instance and populate it with the required modules.
+    /*YUI().use('datatable', function (Y) {
+        // DataTable is available and ready for use. Add implementation
+        // code here.
+        var data = [
+            { id: "ga-3475", name: "gadget",   price: "$6.99", cost: "$5.99" },
+            { id: "sp-9980", name: "sprocket", price: "$3.75", cost: "$3.25" },
+            { id: "wi-0650", name: "widget",   price: "$4.25", cost: "$3.75" }
+        ];
+
+        var table = new Y.DataTable({
+                                        columns: ["id", "name", "price"],
+                                        data: data,
+
+                                        // Optionally configure your table with a caption
+                                        caption: "My first DataTable!",
+
+                                        // and/or a summary (table attribute)
+                                        summary: "Example DataTable showing basic instantiation configuration"
+                                    });
+
+        table.render("#example");
+
+    });*/
+
+
+
+</script>
+
+
+
+</body>
+</html>
