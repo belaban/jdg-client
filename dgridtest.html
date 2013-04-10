@@ -10,11 +10,25 @@
 
 </head>
 <body>
+
+<script>
+    var num=1;
+</script>
+
+<script>
+    num++;
+    alert("num is " + num);
+</script>
+
+
 <script>
 
-    require(["dojo/store/Memory", "dojo/store/Observable", "dgrid/Grid", "dgrid/Selection",
-                "dgrid/OnDemandGrid", "dojo/domReady!"],
-            function(Memory, Observable, Grid, Selection, OnDemandGrid) {
+    require(["dojo/_base/declare", "dojo/store/Memory", "dojo/store/Observable", "dgrid/Grid", "dgrid/Selection",
+                "dgrid/Keyboard", "dgrid/OnDemandGrid", "dojo/domReady!"],
+            function(declare, Memory, Observable, Grid, Selection, Keyboard, OnDemandGrid) {
+
+
+
 
                 var employees=[
                     {first: "Bela", last: "Ban", age: 48},
@@ -25,7 +39,7 @@
                 ]
 
                 var store=new Memory({data:employees, idProperty: "first"});
-                store=Observable(store);
+                store=new Observable(store);
 
                 var grid = new OnDemandGrid({
                                                 store: store,
@@ -70,16 +84,16 @@
 
 
 
-<div id="griddie"></div>
+<div id="grid"></div>
 <div id="details">hello</div>
 <div id="message">message here...</div>
 <p/>
-<form id="add" onsubmit="display('key', 'value')">
+<form id="add" onsubmit="display('key', 'value'); return false;" action="javascript:void(0);">
     <label for='key'>Key: </label>
     <input id='key' name="Key" autofocus/>
     <label for='value'>Value:</label>
     <input id='value' name="Value"/>
-    <input type='submit' name="Add" value="Add"/>
+    <input type='submit' name="submit" value="Submit"/>
 </form>
 </body>
 </html>
