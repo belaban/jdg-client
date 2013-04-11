@@ -14,6 +14,7 @@
 <script>
     var store=null;
     var count=1;
+    var timer=null;
 
     /** JDG server, we don't need this when the Javascript code is downloaded from the JDG server directly,
      * as the host name and port of the URL will be the same */
@@ -61,7 +62,16 @@
 
     /** Fetches value for key from the JDG grid */
     function get(key) {
-        sendRequest(GET + "/" + key, null, function(text) {localPut(key, text);}, 1000);
+        sendRequest(GET + "/" + key, null,
+                    function(text) {
+                        var element=store.get(key);
+                        var old_value=element.value;
+                        localPut(key, text);
+                        if(old_value && old_value != text) {
+                            message("Changed " + key + " from " + old_value + " to " + text);
+                        }
+                    },
+                    1000);
     }
 
     /** Sets key/value in the JDG grid */
@@ -98,6 +108,18 @@
         var element=document.getElementById(field_name);
         element.innerHTML=msg;
         setTimeout(function() {element.innerHTML="";}, timeout);
+    }
+
+    function toggleTimer() {
+        if(!timer) {
+            timer=setInterval('refreshLocalCache()', 5000);
+            document.getElementById("toggle-timer").innerHTML="Stop timer"
+        }
+        else {
+            clearInterval(timer);
+            timer=null;
+            document.getElementById("toggle-timer").innerHTML="Start timer"
+        }
     }
 
 
@@ -150,18 +172,14 @@
                         put(obj.key, obj.value);
                 }
 
-                setInterval('refreshLocalCache()', 5000);
-
+                toggleTimer();
             });
 </script>
 
 
 
 <div id="grid"></div>
-<p/>
-<div id="status" style="color:blue"></div>
-<div id="warning" style="color:red"></div>
-<p/>
+<p></p>
 <form id="add" onsubmit="display('key', 'value'); return false;" action="javascript:void(0);">
     <label for='key'>Key: </label>
     <input id='key' name="Key" autofocus/>
@@ -170,7 +188,12 @@
     <input type='submit' name="add" value="Put"/>
     <button id="remove-button" type="button" onclick="localRemove()">Remove</button>
     <button id="refresh"       type="button" onclick="refreshLocalCache()">Refresh local cache</button>
+    <button id="toggle-timer"  type="button" onclick="toggleTimer()">Stop timer</button>
 </form>
+<p></p>
+<div id="status" style="color:blue"></div>
+<div id="warning" style="color:red"></div>
+<p></p>
 
 </body>
 </html>
