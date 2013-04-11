@@ -13,6 +13,110 @@
 
 <script>
     var store=null;
+    var count=1;
+    var timer;
+
+    /** JDG server, we don't need this when the Javascript code is downloaded from the JDG server directly,
+     * as the host name and port of the URL will be the same */
+    var URL="http://localhost:8080";
+    var GET="GET";       // GET/key --> value
+    var PUT="PUT";       // PUT/key/value --> status message
+    var REMOVE="REMOVE"; // REMOVE/key
+
+    function display(keyname, valname) {
+        var key=document.getElementById(keyname).value;
+        var value=document.getElementById(valname).value;
+        localPut(key, value);
+        put(key, value);
+    }
+
+    function localPut(key, value) {
+        var element=store.get(key);
+        if(element == null) {
+            store.add({key: key, value: value}, {overwrite: true});
+        }
+        else {
+            element.value=value;
+            store.put(element, {overwrite: true});
+        }
+    }
+
+    /** Removes the selected key from the grid (no-op if nothing is selected) */
+    function localRemove() {
+        var key=document.getElementById('key');
+        if(key != null && key.value != null)
+            store.remove(key.value);
+    }
+
+    /** Fetches all values for the keys in the local store from the JDG server and updates the local cache if needed */
+    function refreshLocalCache() {
+        require(["dojo/_base/array"], function(arrayUtil) {
+            var contents=store.query(); // get all objects in the local cache
+            arrayUtil.forEach(contents, function(item,index) {
+                get(item.key);
+            })
+        });
+    }
+
+    /** Fetches value for key from the JDG grid */
+    function get(key) {
+        require(["dojo/request"], function(request) {
+            var get_url=GET + "/" + key;
+            request(get_url).then(
+                    function(text)  { // success
+                        localPut(key, text);
+                    },
+                    function(error) { // error
+                        warning(error);
+                    });
+        });
+    }
+
+    /** Sets key/value in the JDG grid */
+    function put(key, value) {
+        require(["dojo/request"], function(request) {
+            var put_url=PUT + "/" + key + "/" + value;
+            request(put_url).then(
+                    function(text)  { // success
+                        message("Set " + key + "=" + value, 3000);
+                    },
+                    function(error) { // error
+                        warning(error);
+                    });
+        });
+    }
+
+    /** Remove key in the JDG grid */
+    function remove(key) {
+        require(["dojo/request"], function(request) {
+            var url=REMOVE + "/" + key;
+            request(url).then(
+                    function(text)  { // success
+                        message("Removed " + key, 3000);
+                    },
+                    function(error) { // error
+                        warning(error);
+                    });
+        });
+    }
+
+    function message(msg, timeout) {
+        setField("status", msg, timeout);
+    }
+
+    function warning(msg, timeout) {
+        setField("warning", msg, timeout);
+    }
+
+    function setField(field_name, msg, timeout) {
+        timeout=timeout || 5000;
+        var element=document.getElementById(field_name);
+        element.innerHTML=msg;
+        setTimeout(function() {element.innerHTML="";}, timeout);
+    }
+
+
+
 </script>
 
 
@@ -33,7 +137,7 @@
                 store=new Memory({data:cache, idProperty: "key"});
                 store=new Observable(store);
 
-                var grid = new (declare([OnDemandGrid, Selection]))(
+                var grid=new (declare([OnDemandGrid, Selection]))(
                         {store: store,
                             columns: {
                                 key: "Key",
@@ -55,35 +159,14 @@
                     document.getElementById('value').value=row.data.value;
                 });
             });
-
-
-    function display(keyname, valname) {
-        var key=document.getElementById(keyname).value;
-        var value=document.getElementById(valname).value;
-        console.log("key=" + key + ", value=" + value);
-
-        var element=store.get(key);
-        if(element == null) {
-            store.add({key: key, value: value}, {overwrite: true});
-        }
-        else {
-            element.value=value;
-            store.put(element);
-        }
-    }
-
-    /** Removes the highlighted element from the grid (no-op if nothing is highlighted) */
-    function removeData() {
-        var key=document.getElementById('key');
-        if(key != null && key.value != null) {
-            store.remove(key.value);
-        }
-    }
 </script>
 
 
 
 <div id="grid"></div>
+<p/>
+<div id="status" style="color:blue"></div>
+<div id="warning" style="color:red"></div>
 <p/>
 <form id="add" onsubmit="display('key', 'value'); return false;" action="javascript:void(0);">
     <label for='key'>Key: </label>
@@ -91,10 +174,9 @@
     <label for='value'>Value:</label>
     <input id='value' name="Value"/>
     <input type='submit' name="add" value="Put"/>
-    <button id="mybutton" type="button" onclick="removeData()">Remove</button>
+    <button id="mybutton" type="button" onclick="localRemove()">Remove</button>
+    <button id="refresh" type="button" onclick="refreshLocalCache()">Refresh local cache</button>
 </form>
-
-
 
 </body>
 </html>
