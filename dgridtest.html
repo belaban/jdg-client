@@ -14,7 +14,6 @@
 <script>
     var store=null;
     var count=1;
-    var timer;
 
     /** JDG server, we don't need this when the Javascript code is downloaded from the JDG server directly,
      * as the host name and port of the URL will be the same */
@@ -22,6 +21,7 @@
     var GET="GET";       // GET/key --> value
     var PUT="PUT";       // PUT/key/value --> status message
     var REMOVE="REMOVE"; // REMOVE/key
+    var REQUEST_TIMEOUT=5000;
 
     function display(keyname, valname) {
         var key=document.getElementById(keyname).value;
@@ -46,6 +46,7 @@
         var key=document.getElementById('key');
         if(key != null && key.value != null)
             store.remove(key.value);
+        remove(key.value);
     }
 
     /** Fetches all values for the keys in the local store from the JDG server and updates the local cache if needed */
@@ -60,42 +61,26 @@
 
     /** Fetches value for key from the JDG grid */
     function get(key) {
-        require(["dojo/request"], function(request) {
-            var get_url=GET + "/" + key;
-            request(get_url).then(
-                    function(text)  { // success
-                        localPut(key, text);
-                    },
-                    function(error) { // error
-                        warning(error);
-                    });
-        });
+        sendRequest(GET + "/" + key, null, function(text) {localPut(key, text);}, 1000);
     }
 
     /** Sets key/value in the JDG grid */
     function put(key, value) {
-        require(["dojo/request"], function(request) {
-            var put_url=PUT + "/" + key + "/" + value;
-            request(put_url).then(
-                    function(text)  { // success
-                        message("Set " + key + "=" + value, 3000);
-                    },
-                    function(error) { // error
-                        warning(error);
-                    });
-        });
+        sendRequest(PUT + "/" + key + "/" + value, "Set " + key + "=" + value, null, 1000);
     }
 
     /** Remove key in the JDG grid */
     function remove(key) {
+        sendRequest(REMOVE + "/" + key, "Removed " + key, null, 1000);
+    }
+
+    function sendRequest(url, msg, success_function, timeout) {
         require(["dojo/request"], function(request) {
-            var url=REMOVE + "/" + key;
-            request(url).then(
-                    function(text)  { // success
-                        message("Removed " + key, 3000);
-                    },
+            timeout=timeout || REQUEST_TIMEOUT;
+            request(url, {timeout: timeout}).then(
+                    success_function? success_function : function(text) {message(msg)},
                     function(error) { // error
-                        warning(error);
+                        warning(error.name + ": " + error.message);
                     });
         });
     }
@@ -158,6 +143,15 @@
                     document.getElementById('key').value=row.data.key;
                     document.getElementById('value').value=row.data.value;
                 });
+
+                for(i=0; i < cache.length; i++) {
+                    var obj=cache[i];
+                    if(obj != null && obj.key != null && obj.value != null)
+                        put(obj.key, obj.value);
+                }
+
+                setInterval('refreshLocalCache()', 5000);
+
             });
 </script>
 
@@ -174,8 +168,8 @@
     <label for='value'>Value:</label>
     <input id='value' name="Value"/>
     <input type='submit' name="add" value="Put"/>
-    <button id="mybutton" type="button" onclick="localRemove()">Remove</button>
-    <button id="refresh" type="button" onclick="refreshLocalCache()">Refresh local cache</button>
+    <button id="remove-button" type="button" onclick="localRemove()">Remove</button>
+    <button id="refresh"       type="button" onclick="refreshLocalCache()">Refresh local cache</button>
 </form>
 
 </body>
