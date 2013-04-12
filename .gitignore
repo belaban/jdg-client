@@ -11,10 +11,8 @@
 classes/
 build.properties
 dist/
-atlassian*
 keystore/
 tmp/
-bla*.java
 doc/manual/target
 doc/tutorial/target
 conf/MANIFEST.MF
