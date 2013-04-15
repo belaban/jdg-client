@@ -10,9 +10,9 @@
 
     <script data-dojo-config="async: 1, dojoBlankHtmlUrl: '/blank.html',
             packages: [
-            {name: 'dgrid',        location: location.pathname.replace(/\/[^/]+$/, '') + '/dgrid'},
-            {name: 'put-selector', location: location.pathname.replace(/\/[^/]+$/, '') + '/put-selector'},
-            {name: 'xstyle',       location: location.pathname.replace(/\/[^/]+$/, '') + '/xstyle'}
+            {name: 'dgrid',        location: location.pathname.replace(/\/[^/]+$/, '') + 'dgrid'},
+            {name: 'put-selector', location: location.pathname.replace(/\/[^/]+$/, '') + 'put-selector'},
+            {name: 'xstyle',       location: location.pathname.replace(/\/[^/]+$/, '') + 'xstyle'}
             ]"
             src="//ajax.googleapis.com/ajax/libs/dojo/1.8.3/dojo/dojo.js"></script>
 
@@ -95,7 +95,7 @@
     function sendRequest(url, msg, success_function, timeout) {
         require(["dojo/request"], function(request) {
             timeout=timeout || REQUEST_TIMEOUT;
-            request(url, {timeout: timeout}).then(
+            request(url, {timeout: timeout, method: "GET"}).then(
                     success_function? success_function : function(text) {message(msg)},
                     function(error) { // error
                         warning(error.name + ": " + error.message);
