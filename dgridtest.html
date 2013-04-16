@@ -10,9 +10,9 @@
 
     <script data-dojo-config="async: 1, dojoBlankHtmlUrl: '/blank.html',
             packages: [
-            {name: 'dgrid',        location: location.pathname.replace(/\/[^/]+$/, '') + 'dgrid'},
-            {name: 'put-selector', location: location.pathname.replace(/\/[^/]+$/, '') + 'put-selector'},
-            {name: 'xstyle',       location: location.pathname.replace(/\/[^/]+$/, '') + 'xstyle'}
+            {name: 'dgrid',        location: '/dgrid'},
+            {name: 'put-selector', location: '/put-selector'},
+            {name: 'xstyle',       location: '/xstyle'}
             ]"
             src="//ajax.googleapis.com/ajax/libs/dojo/1.8.3/dojo/dojo.js"></script>
 
@@ -29,8 +29,10 @@
     // var URL="http://localhost:8080";
     var GET="GET";       // GET/key --> value
     var PUT="PUT";       // PUT/key/value --> status message
-    var REMOVE="REMOVE"; // REMOVE/key
+    var DELETE="DELETE"; // DELETE/key
     var REQUEST_TIMEOUT=5000;
+    var CONTEXT="rest";
+    var CACHE_NAME="default";
 
     function display(keyname, valname) {
         var key=document.getElementById(keyname).value;
@@ -45,6 +47,14 @@
             store.add({key: key, value: value}, {overwrite: true});
         }
         else {
+            element.value=value;
+            store.put(element, {overwrite: true});
+        }
+    }
+
+    function localReplace(key, value) {
+        var element=store.get(key);
+        if(element != null) {
             element.value=value;
             store.put(element, {overwrite: true});
         }
@@ -70,7 +80,7 @@
 
     /** Fetches value for key from the JDG grid */
     function get(key) {
-        sendRequest(GET + "/" + key, null,
+        sendRequest(GET, "/" + CONTEXT + "/" + CACHE_NAME + "/" + key, null,
                     function(text) {
                         var element=store.get(key);
                         var old_value=element.value;
@@ -79,27 +89,36 @@
                             message("Changed " + key + " from " + old_value + " to " + text);
                         }
                     },
+                    function(error) {
+                        localReplace(key, "n/a");
+                    },
                     1000);
     }
 
     /** Sets key/value in the JDG grid */
     function put(key, value) {
-        sendRequest(PUT + "/" + key + "/" + value, "Set " + key + "=" + value, null, 1000);
+        sendRequest(PUT, "/" + CONTEXT + "/" + CACHE_NAME + "/" + key,
+                    "Set " + key + "=" + value, null, null, 1000, value);
     }
 
     /** Remove key in the JDG grid */
     function remove(key) {
-        sendRequest(REMOVE + "/" + key, "Removed " + key, null, 1000);
+        sendRequest(DELETE, "/" + CONTEXT + "/" + CACHE_NAME + "/" + key, "Removed " + key, null, null, 1000);
     }
 
-    function sendRequest(url, msg, success_function, timeout) {
+    function sendRequest(method, url, msg, success_function, error_function, timeout, data) {
         require(["dojo/request"], function(request) {
             timeout=timeout || REQUEST_TIMEOUT;
-            request(url, {timeout: timeout, method: "GET"}).then(
+            request(url,
+                    {
+                        timeout: timeout,
+                        method: method,
+                        headers: {"Content-Type": "text/plain"},
+                        data: data
+                    })
+                    .then(
                     success_function? success_function : function(text) {message(msg)},
-                    function(error) { // error
-                        warning(error.name + ": " + error.message);
-                    });
+                    error_function? error_function : function(error) {warning(error.name + ": " + error.message);});
         });
     }
 
@@ -139,11 +158,11 @@
             function(declare, Memory, Observable, Grid, Selection, Keyboard, OnDemandGrid) {
 
                 var cache=[
-                    {key: "Bela",      value: "Ban"},
-                    {key: "Michelle",  value: "Ban"},
-                    {key: "Nicole",    value: "Ban"},
-                    {key: "Jeannette", value: "Ban"},
-                    {key: "Marco",     value: "Furini"}
+                    {key: "name",      value: "Bela"},
+                    {key: "id",        value: "322649"},
+                    {key: "conf",      value: "JBossWorld Boston 2013"},
+                    {key: "project",   value: "JGroups (jgroups.org)"},
+                    {key: "url",       value: "http://www.jgroups.org"}
                 ];
 
                 store=new Memory({data:cache, idProperty: "key"});
