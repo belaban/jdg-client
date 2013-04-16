@@ -1,0 +1,24 @@
+
+JDG demo
+========
+
+Configuration
+-------------
+
+* Download a copy of JDG (JBoss Data Grid) server and unpack it into a dir (say JDG)
+* Copy all of the files of this directory into jdg/rest: copy -r * $JDG/rest
+* Copy clustered.xml into $JDG/standalone/configuration/
+
+
+Starting a cluster of JDG servers
+---------------------------------
+* Run $JDG/bin/standalone.sh with the following arguments:
+
+  cd $JDG/bin
+  ./standalone.sh -c clustered.xml -b 192.168.1.10  -Djboss.node.name=node2
+
+  -b points to a network interface. If multiple JDG copies should be run on
+  the same host, use different logical network interfaces, e.g. using aliases
+
+  -Djboss.node.name=NODE is used to differentiate between JDG servers. Use a
+  different value for each JDG server
