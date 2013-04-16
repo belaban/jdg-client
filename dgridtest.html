@@ -2,7 +2,7 @@
 <html xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="utf-8">
-    <title>JDG client</title>
+    <title>JDG demo</title>
     <!-- this cofiguration assumes that the dgrid package is located
          on the filesystem as a sibling to the dojo package -->
     <!--script src="../dojo/dojo.js"
@@ -21,12 +21,7 @@
 
 <script>
     var store=null;
-    var count=1;
     var timer=null;
-
-    /** JDG server, we don't need this when the Javascript code is downloaded from the JDG server directly,
-     * as the host name and port of the URL will be the same */
-    // var URL="http://localhost:8080";
     var GET="GET";       // GET/key --> value
     var PUT="PUT";       // PUT/key/value --> status message
     var DELETE="DELETE"; // DELETE/key
@@ -43,9 +38,8 @@
 
     function localPut(key, value) {
         var element=store.get(key);
-        if(element == null) {
+        if(element == null)
             store.add({key: key, value: value}, {overwrite: true});
-        }
         else {
             element.value=value;
             store.put(element, {overwrite: true});
@@ -90,6 +84,7 @@
                         }
                     },
                     function(error) {
+                        warning(error);
                         localReplace(key, "n/a");
                     },
                     1000);
