@@ -57,6 +57,12 @@
                 <suffix value=".yyyy-MM-dd"/>
                 <append value="true"/>
             </periodic-rotating-file-handler>
+          <!--  <logger category="org.jgroups" use-parent-handlers="false">
+                <level name="TRACE" />
+                <handlers>
+                    <handler name="CONSOLE"/>
+                </handlers>
+            </logger>-->
             <logger category="com.arjuna">
                 <level name="WARN"/>
             </logger>
@@ -105,31 +111,11 @@
                 <distributed-cache name="namedCache" mode="SYNC" start="EAGER"/>
             </cache-container>
         </subsystem>
-       <!-- <subsystem xmlns="urn:jboss:domain:jca:1.1">
-            <archive-validation enabled="true" fail-on-error="true" fail-on-warn="false"/>
-            <bean-validation enabled="true"/>
-            <default-workmanager>
-                <short-running-threads>
-                    <core-threads count="50"/>
-                    <queue-length count="50"/>
-                    <max-threads count="50"/>
-                    <keepalive-time time="10" unit="seconds"/>
-                </short-running-threads>
-                <long-running-threads>
-                    <core-threads count="50"/>
-                    <queue-length count="50"/>
-                    <max-threads count="50"/>
-                    <keepalive-time time="10" unit="seconds"/>
-                </long-running-threads>
-            </default-workmanager>
-            <cached-connection-manager/>
-        </subsystem>-->
         <subsystem xmlns="urn:jboss:domain:jgroups:1.2" default-stack="${jboss.default.jgroups.stack:udp}">
             <stack name="udp">
-                <transport type="UDP" socket-binding="jgroups-udp">
+                <transport type="UDP" socket-binding="jgroups-udp" diagnostics-socket-binding="diagnostics">
                     <property name="mcast_recv_buf_size">5M</property>
                     <property name="ucast_recv_buf_size">5M</property>
-                    <property name="enable_diagnostics">true</property>
                 </transport>
                 <protocol type="PING"/>
                 <protocol type="MERGE2"/>
@@ -145,7 +131,7 @@
                 <protocol type="RSVP"/>
             </stack>
             <stack name="tcp">
-                <transport type="TCP" socket-binding="jgroups-tcp">
+                <transport type="TCP" socket-binding="jgroups-tcp" diagnostics-socket-binding="diagnostics">
                     <property name="enable_diagnostics">true</property>
                 </transport>
                 <protocol type="MPING" socket-binding="jgroups-mping"/>
@@ -217,6 +203,7 @@
         <socket-binding name="management-native" interface="management" port="${jboss.management.native.port:9999}"/>
         <socket-binding name="management-http" interface="management" port="${jboss.management.http.port:9990}"/>
         <socket-binding name="management-https" interface="management" port="${jboss.management.https.port:9443}"/>
+        <socket-binding name="diagnostics" interface="public" multicast-address="224.0.75.75" multicast-port="7500"/>
         <socket-binding name="ajp" port="8009"/>
         <socket-binding name="hotrod" port="11222"/>
         <socket-binding name="http" port="8080"/>
