@@ -108,7 +108,10 @@
                 <protocol type="PING"/>
                 <protocol type="MERGE2"/>
                 <protocol type="FD_SOCK" socket-binding="jgroups-udp-fd"/>
-                <protocol type="FD_ALL"/>
+                <protocol type="FD_ALL">
+                    <property name="interval">5000</property>
+                    <property name="timeout">50000</property>
+                </protocol>
                 <protocol type="pbcast.NAKACK"/>
                 <protocol type="UNICAST2"/>
                 <protocol type="pbcast.STABLE"/>
@@ -132,7 +135,10 @@
                 <protocol type="PING"/>
                 <protocol type="MERGE2"/>
                 <protocol type="FD_SOCK" socket-binding="jgroups-udp-fd"/>
-                <protocol type="FD_ALL"/>
+                <protocol type="FD_ALL">
+                    <property name="interval">5000</property>
+                    <property name="timeout">50000</property>
+                </protocol>
                 <protocol type="pbcast.NAKACK"/>
                 <protocol type="UNICAST2"/>
                 <protocol type="pbcast.STABLE"/>
@@ -159,7 +165,10 @@
                 <protocol type="MPING" socket-binding="jgroups-mping"/>
                 <protocol type="MERGE2"/>
                 <protocol type="FD_SOCK" socket-binding="jgroups-tcp-fd"/>
-                <protocol type="FD"/>
+                <protocol type="FD">
+                    <property name="timeout">5000</property>
+                    <property name="max_tries">10</property>
+                </protocol>
                 <protocol type="VERIFY_SUSPECT"/>
                 <protocol type="pbcast.NAKACK">
                     <property name="use_mcast_xmit">false</property>
