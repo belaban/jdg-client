@@ -67,6 +67,7 @@
         require(["dojo/_base/array"], function(arrayUtil) {
             var contents=store.query(); // get all objects in the local cache
             arrayUtil.forEach(contents, function(item,index) {
+                console.log("fetching " + item.key);
                 get(item.key);
             })
         });
@@ -108,8 +109,10 @@
                     {
                         timeout: timeout,
                         method: method,
+                        // headers: {"Content-Type": "text/plain", "Cache-Control": "no-cache, max-age=0, must-revalidate"},
                         headers: {"Content-Type": "text/plain"},
-                        data: data
+                        data: data,
+                        preventCache: true
                     })
                     .then(
                     success_function? success_function : function(text) {message(msg)},
@@ -126,7 +129,7 @@
     }
 
     function setField(field_name, msg, timeout) {
-        timeout=timeout || 5000;
+        timeout=timeout || 8000;
         var element=document.getElementById(field_name);
         element.innerHTML=msg;
         setTimeout(function() {element.innerHTML="";}, timeout);
@@ -143,6 +146,22 @@
             document.getElementById("toggle-timer").innerHTML="Start timer"
         }
     }
+
+    function addTestData() {
+        var tmp_array=[
+            {key: "name",      value: "Bela"},
+            {key: "id",        value: "322649"},
+            {key: "conf",      value: "JBossWorld Boston 2013"},
+            {key: "project",   value: "JGroups (jgroups.org)"},
+            {key: "url",       value: "http://www.jgroups.org"}
+        ];
+
+        for(var i=0; i < tmp_array.length; i++) {
+            var el=tmp_array[i];
+            localPut(el.key, el.value)
+            put(el.key, el.value);
+        }
+    }
 </script>
 
 
@@ -151,15 +170,12 @@
     require(["dojo/_base/declare", "dojo/store/Memory", "dojo/store/Observable", "dgrid/Grid", "dgrid/Selection",
                 "dgrid/Keyboard", "dgrid/OnDemandGrid", "dojo/domReady!"],
             function(declare, Memory, Observable, Grid, Selection, Keyboard, OnDemandGrid) {
-
-                // todo: remove initialization
                 var cache=[
-                    {key: "name",      value: "Bela"},
-                    {key: "id",        value: "322649"},
-                    {key: "conf",      value: "JBossWorld Boston 2013"},
-                    {key: "project",   value: "JGroups (jgroups.org)"},
-                    {key: "url",       value: "http://www.jgroups.org"}
-                ];
+                    {key: "name",      value: null},
+                    {key: "id",        value: null},
+                    {key: "conf",      value: null},
+                    {key: "project",   value: null},
+                    {key: "url",       value: null}];
 
                 store=new Memory({data:cache, idProperty: "key"});
                 store=new Observable(store);
@@ -209,6 +225,7 @@
     <button id="remove-button" type="button" onclick="localRemove()">Remove</button>
     <button id="refresh"       type="button" onclick="refreshLocalCache()">Refresh local cache</button>
     <button id="toggle-timer"  type="button" onclick="toggleTimer()">Stop timer</button>
+    <button id="add-test-data" type="button" onclick="addTestData()">Add test data</button>
 </form>
 <p></p>
 <div id="status" style="color:blue"></div>
