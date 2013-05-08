@@ -36,20 +36,26 @@
         put(key, value);
     }
 
-    function localPut(key, value) {
+    function localPut(key, value, owner, served_by, ip) {
         var element=store.get(key);
         if(element == null)
-            store.add({key: key, value: value}, {overwrite: true});
+            store.add({key: key, value: value, primary_owner: owner, served_by: served_by, ip_addr: ip}, {overwrite: true});
         else {
             element.value=value;
+            element.primary_owner=owner;
+            element.served_by=served_by;
+            element.ip_addr=ip;
             store.put(element, {overwrite: true});
         }
     }
 
-    function localReplace(key, value) {
+    function localReplace(key, value, owner, served_by, ip_addr) {
         var element=store.get(key);
         if(element != null) {
             element.value=value;
+            element.primary_owner=owner;
+            element.served_by=served_by;
+            element.ip_addr=ip_addr;
             store.put(element, {overwrite: true});
         }
     }
@@ -75,50 +81,58 @@
 
     /** Fetches value for key from the JDG grid */
     function get(key) {
-        sendRequest(GET, "/" + CONTEXT + "/" + CACHE_NAME + "/" + key, null,
-                    function(text) {
+        sendRequest(GET, "/" + CONTEXT + "/" + CACHE_NAME + "/" + key, 1000, null,
+                    function(result) {
                         var element=store.get(key);
                         var old_value=element.value;
-                        localPut(key, text);
-                        if(old_value && old_value != text) {
-                            message("Changed " + key + " from " + old_value + " to " + text);
+                        var primary_owner=result.getHeader("Cluster-Primary-Owner");
+                        var served_by=result.getHeader("Cluster-Node-Name");
+                        var ip=result.getHeader("Cluster-Server-Address");
+                        console.log("primary owner of " + key + " is " + primary_owner + ", served by " + served_by + ", ip=" + ip);
+                        localPut(key, result.data, primary_owner, served_by, ip);
+                        if(old_value && old_value != result.data) {
+                            message("Changed " + key + " from " + old_value + " to " + result.data);
                         }
                     },
                     function(error) {
                         warning(error);
-                        localReplace(key, "n/a");
-                    },
-                    1000);
+                        localReplace(key, "n/a", "n/a", "n/a", "n/a");
+                    });
     }
+
 
     /** Sets key/value in the JDG grid */
     function put(key, value) {
-        sendRequest(PUT, "/" + CONTEXT + "/" + CACHE_NAME + "/" + key,
-                    "Set " + key + "=" + value, null, null, 1000, value);
+        sendRequest(PUT, "/" + CONTEXT + "/" + CACHE_NAME + "/" + key, 1000, value,
+                    function(result) {message("Set " + key + "=" + value)},
+                    function(error) {warning(error.name + ": " + error.message);});
     }
 
     /** Remove key in the JDG grid */
     function remove(key) {
-        sendRequest(DELETE, "/" + CONTEXT + "/" + CACHE_NAME + "/" + key, "Removed " + key, null, null, 1000);
+        sendRequest(DELETE, "/" + CONTEXT + "/" + CACHE_NAME + "/" + key, 1000, null,
+                    function(result) {message("Removed " + key);},
+                    function(error) {warning(error.name + ": " + error.message);});
     }
 
-    function sendRequest(method, url, msg, success_function, error_function, timeout, data) {
+    function sendRequest(method, url, timeout, data, success, error) {
         require(["dojo/request"], function(request) {
             timeout=timeout || REQUEST_TIMEOUT;
-            request(url,
+            var promise=request(url,
                     {
                         timeout: timeout,
                         method: method,
                         // headers: {"Content-Type": "text/plain", "Cache-Control": "no-cache, max-age=0, must-revalidate"},
                         headers: {"Content-Type": "text/plain"},
                         data: data,
-                        preventCache: true
-                    })
-                    .then(
-                    success_function? success_function : function(text) {message(msg)},
-                    error_function? error_function : function(error) {warning(error.name + ": " + error.message);});
+                        preventCache: true,
+                        query: 'extended'
+                    });
+            promise.response.then(success, error);
         });
     }
+
+
 
     function message(msg, timeout) {
         setField("status", msg, timeout);
@@ -158,7 +172,7 @@
 
         for(var i=0; i < tmp_array.length; i++) {
             var el=tmp_array[i];
-            localPut(el.key, el.value)
+            localPut(el.key, el.value);
             put(el.key, el.value);
         }
     }
@@ -184,7 +198,10 @@
                         {store: store,
                             columns: {
                                 key: "Key",
-                                value: "Value"
+                                value: "Value",
+                                primary_owner: "Primary Owner",
+                                served_by: "Served By",
+                                ip_addr: "IP"
                             },
                             selectionMode: "single"
                         }, "grid");
