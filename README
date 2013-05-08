@@ -6,7 +6,7 @@ Configuration
 -------------
 
 * Download a copy of JDG (JBoss Data Grid) server and unpack it into a dir (say JDG)
-* Copy all of the files of this directory into jdg/rest: copy -r * $JDG/rest
+* Copy *.html plus xstyle, put-selector and dgrid into jdg/rest: cp -r *.html put* xstyle* dgrid* $JDG/rest/
 * Copy *.xml into $JDG/standalone/configuration/
 * Copy *.sh into $JDG/bin
 
@@ -20,3 +20,5 @@ Starting a cluster of JDG servers
   (name bind address port-offset)
 
   lon.sh without args prints the parameter info
+
+* If you run multiple instances on the same box, make sure to use different port offsets
