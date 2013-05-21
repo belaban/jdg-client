@@ -81,12 +81,12 @@
             </root-logger>
         </subsystem>
         <subsystem xmlns="urn:infinispan:server:endpoint:5.2">
-            <rest-connector virtual-server="default-host" cache-container="clustered"/>
+            <rest-connector virtual-server="default-host" cache-container="SFO"/>
         </subsystem>
 
-        <subsystem xmlns="urn:infinispan:server:core:5.2" default-cache-container="clustered">
-            <cache-container name="clustered" default-cache="default">
-                <transport executor="infinispan-transport" lock-timeout="60000" cluster="BOS" stack="relay"/>
+        <subsystem xmlns="urn:infinispan:server:core:5.2" default-cache-container="SFO">
+            <cache-container name="SFO" default-cache="default">
+                <transport executor="infinispan-transport" lock-timeout="60000" cluster="SFO" stack="relay"/>
                 <distributed-cache name="default" mode="SYNC" segments="20" owners="2" remote-timeout="30000" start="EAGER">
                     <locking isolation="READ_COMMITTED" acquire-timeout="30000" concurrency-level="1000" striping="false"/>
                     <transaction mode="NONE"/>
@@ -147,7 +147,7 @@
                 <protocol type="MFC"/>
                 <protocol type="FRAG2"/>
                 <protocol type="RSVP"/>
-                <relay site="BOS">
+                <relay site="SFO">
                     <remote-site name="LON" stack="tcp" cluster="global"/>
                     <remote-site name="BOS" stack="tcp" cluster="global"/>
                     <!--<remote-site name="SFO" stack="tcp" cluster="global"/>-->
@@ -176,7 +176,6 @@
                 <protocol type="UNICAST2"/>
                 <protocol type="pbcast.STABLE"/>
                 <protocol type="pbcast.GMS"/>
-                <protocol type="UFC"/>
                 <protocol type="MFC"/>
                 <protocol type="FRAG2"/>
                 <protocol type="RSVP"/>
@@ -188,8 +187,8 @@
         </subsystem>
        <subsystem xmlns="urn:jboss:domain:modcluster:1.1">
             <mod-cluster-config advertise-socket="modcluster" excluded-contexts="console"
-                                connector="ajp" proxy-list="192.168.1.5:8000"
-                                load-balancing-group="${site:BOS-site}">
+                                connector="ajp" proxy-list="${proxy:127.0.0.1:8000}"
+                                load-balancing-group="${site:SFO-site}">
                 <dynamic-load-provider>
                     <load-metric type="busyness"/>
                 </dynamic-load-provider>
