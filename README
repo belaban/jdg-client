@@ -6,7 +6,7 @@ Configuration
 -------------
 
 * Download a copy of JDG (JBoss Data Grid) server and unpack it into a dir (say JDG)
-* Copy *.html plus xstyle, put-selector and dgrid into jdg/rest: cp -r *.html put* xstyle* dgrid* $JDG/rest/
+* Copy *.html plus ojo, xstyle, put-selector and dgrid into jdg/rest: cp -r *.html put* xstyle* dgrid* $JDG/rest/
 * Copy *.xml into $JDG/standalone/configuration/
 * Copy *.sh into $JDG/bin
 
