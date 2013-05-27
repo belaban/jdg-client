@@ -5,16 +5,25 @@
     <title>JDG demo</title>
     <!-- this cofiguration assumes that the dgrid package is located
          on the filesystem as a sibling to the dojo package -->
-    <!--script src="../dojo/dojo.js"
-            data-dojo-config="async: true"></script-->
+    <script src="./dojo/dojo.js"
+            data-dojo-config="async: true"></script>
 
-    <script data-dojo-config="async: 1, dojoBlankHtmlUrl: '/blank.html',
+    <!--script data-dojo-config="async: 1, dojoBlankHtmlUrl: '/blank.html',
             packages: [
             {name: 'dgrid',        location: '/dgrid'},
             {name: 'put-selector', location: '/put-selector'},
             {name: 'xstyle',       location: '/xstyle'}
             ]"
-            src="//ajax.googleapis.com/ajax/libs/dojo/1.8.3/dojo/dojo.js"></script>
+            src="//ajax.googleapis.com/ajax/libs/dojo/1.8.3/dojo/dojo.js"></script-->
+
+    <script data-dojo-config="async: 1, dojoBlankHtmlUrl: '/blank.html',
+               packages: [
+               {name: 'dojo',        location: '/dojo'},
+               {name: 'dgrid',        location: '/dgrid'},
+               {name: 'put-selector', location: '/put-selector'},
+               {name: 'xstyle',       location: '/xstyle'}
+               ]">
+    </script>
 
 </head>
 <body>
